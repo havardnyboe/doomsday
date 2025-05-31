@@ -1,92 +1,98 @@
 <script lang="ts">
-	const dommedager = {
-		0: ['3/1', '28/2', '14/3', '4/4', '9/5', '6/6', '11/7', '8/8', '5/9', '10/10', '7/11', '12/12'],
-		1: ['4/1', '29/2', '14/3', '4/4', '9/5', '6/6', '11/7', '8/8', '5/9', '10/10', '7/11', '12/12']
-	};
-	const ukedager: Record<number, string> = {
-		0: 'søndag',
-		1: 'mandag',
-		2: 'tirsdag',
-		3: 'onsdag',
-		4: 'torsdag',
-		5: 'fredag',
-		6: 'lørdag'
-	};
-	const ukedagerRegex: Record<string, string> = {
-		m: 'mandag',
-		i: 'tirsdag',
-		on: 'onsdag',
-		to: 'torsdag',
-		f: 'fredag',
-		l: 'lørdag',
-		sø: 'søndag'
-	};
-	function erSkuddår(år: number): boolean {
-		return (år % 4 === 0 && år % 100 !== 0) || år % 400 === 0;
-	}
+	import { genererTilfeldigDato, iso8601TilDDMMYYYY, ukedager, ukedagerRegex } from "../utils/dager";
 
-	let gjettetUkedag = '';
-	let generertUkedag = '';
-	let generertDato = '';
+	let gjettetUkedag = "";
+	let generertUkedag = "";
+	let generertDato = genererTilfeldigDato();
+	let ukedagInput: HTMLInputElement | null = null;
 
-	function genererTilfeldigDato() {
-		gjettetUkedag = '';
-		generertUkedag = '';
-		const år = Math.floor(Math.random() * 200) + 1900;
-		// const måned = Math.floor(Math.random() * 12); // 0-11
-		const måned = 11;
-		// const dagerIMåned = [31, erSkuddår(år) ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-		// const dag = Math.floor(Math.random() * dagerIMåned[måned]);
-		const dag = 11;
-		return `${String(dag + 1).padStart(2, '0')}/${String(måned + 1).padStart(2, '0')}/${år}`;
-	}
-
-	function finnUkedagFraString(str: string): string {
-		return Object.entries(ukedagerRegex).find(([key]) => str.toLowerCase().match(key))?.[1] ?? '';
+	function finnUkedagFraString(str: string): string | undefined {
+		return Object.entries(ukedagerRegex).find(([key]) => str.toLowerCase().match(key))?.[1];
 	}
 
 	function håndterKnapp() {
+		gjettetUkedag = "";
+		generertUkedag = "";
+
+		if (ukedagInput) {
+			ukedagInput.value = "";
+			ukedagInput.focus();
+		}
+
 		generertDato = genererTilfeldigDato();
-		const parsedDag = new Date(generertDato);
-		console.log(parsedDag);
-		console.log(parsedDag.getDay());
-		console.log(ukedager[parsedDag.getDay()]);
 	}
 
-	function hånterInputDag(input: HTMLInputElement) {
+	function hånterInputDag() {
 		const parsedDag = new Date(generertDato);
-		gjettetUkedag = finnUkedagFraString(input.value);
+		gjettetUkedag = ukedagInput ? (finnUkedagFraString(ukedagInput.value.trim()) ?? "") : "";
 		generertUkedag = ukedager[parsedDag.getDay()];
 	}
 </script>
 
-<h1>Dommedagsregelen Kviss</h1>
-<p style="font-size: 1.5rem;">{generertDato}</p>
-<input
-	on:keyup={(e) => {
-		if (e.key == 'Enter') hånterInputDag(e.target as HTMLInputElement);
-	}}
-	type="text"
-	name="ukedag"
-	id="ukedag"
-	autofocus
-/>
-<button on:click={håndterKnapp}>Generer dato</button>
-{#if gjettetUkedag}
-	<p>Du gjettet: {gjettetUkedag} <br /> Riktig dag er: {generertUkedag}</p>
-{/if}
+<section>
+	<p>Hvilken ukedag er:</p>
+	<p style="font-size: 1.5rem;">{iso8601TilDDMMYYYY(generertDato)}</p>
+</section>
+
+<section>
+	<input
+		bind:this={ukedagInput}
+		on:keyup={(e) => {
+			if (e.key == "Enter") hånterInputDag();
+		}}
+		type="text"
+		name="ukedag"
+		id="ukedag"
+		autofocus
+	/>
+	<button on:click={håndterKnapp}>Generer dato</button>
+</section>
+
+<section>
+	{#if gjettetUkedag}
+		<p>Du gjettet: {gjettetUkedag} <br /> Riktig dag: {generertUkedag}</p>
+	{/if}
+</section>
 
 <style>
+	section {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		margin: 2rem auto;
+		max-width: 600px;
+		gap: 1rem;
+	}
+
+	p {
+		margin: 0;
+	}
+
 	input {
 		border-radius: 8px;
 		border: 1px solid #ccc;
 		padding: 0.5rem;
-		font-size: 1rem;
-		/* width: 100%; */
+		font-family: "Space Mono", monospace;
 		box-sizing: border-box;
 		transition: border-color 10ms ease;
-
 		background-color: #f9f9f9;
 		box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+	}
+
+	button {
+		border-radius: 8px;
+		border: 1px solid #ccc;
+		padding: 0.5rem 1rem;
+		font-family: "Space Mono", monospace;
+		background-color: #f9f9f9;
+		cursor: pointer;
+		margin-left: 0.5rem;
+		color: #333;
+
+		&:active {
+			background-color: #e0e0e0;
+			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+			color: #000;
+		}
 	}
 </style>
