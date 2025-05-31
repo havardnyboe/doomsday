@@ -17,7 +17,7 @@
 </main>
 
 <style>
-	:root {
+	:global(:root) {
 		font-family: 'Space Mono', monospace;
 		line-height: 1.5;
 		font-weight: 400;
@@ -28,37 +28,41 @@
 		-moz-osx-font-smoothing: grayscale;
 	}
 
+  :global(html) {
+    scrollbar-gutter: stable both-edges;
+  }
+
 	:global(a) {
 		text-decoration: underline;
 		font-style: italic;
 		color: #0070f3;
-		transition: color 0.2s ease-in-out;
+		transition: background-color 0.1s ease-in-out, box-shadow 0.1s ease-in-out, color 0.1s ease-in-out;
 
 		&:hover {
-			color: #005bb5;
+			background-color: #005bb5;
+      color: #fff;
+      box-shadow: -0.5rem 0 0 0 #005bb5, 0.5rem 0 0 0 #005bb5;
 		}
 	}
 
-	:global(li a) {
+	li a {
 		text-decoration: dotted underline;
 		color: #555;
-		padding: 0.75rem 1rem;
-		border-radius: 0.5rem;
 
 		&:hover {
-			color: #000;
+			color: #fff;
 			text-decoration: underline;
-			background-color: #f0f0f0;
+			background-color: #000;
+      box-shadow: -0.5rem 0 0 0 #000, 0.5rem 0 0 0 #000;
 		}
 	}
 
-	:global(nav) {
+	nav {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		margin: auto;
 		width: calc(100% - 10rem);
-		/* border-bottom: 1px solid #666; */
 
 		ul {
 			display: flex;
@@ -69,8 +73,7 @@
 		}
 	}
 
-	:global(main) {
-		text-align: center;
+	main {
 		margin: auto;
 	}
 </style>
